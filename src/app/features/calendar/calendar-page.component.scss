@@ -1,0 +1,242 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.calendar-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f3f2fa;
+  font-family: Roboto, system-ui, sans-serif;
+  color: #1b1b21;
+}
+
+.app-header {
+  height: 64px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 0 16px 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #3949ab;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+}
+
+.app-header__title {
+  font-size: 20px;
+  font-weight: 500;
+  flex-grow: 1;
+}
+
+.app-header__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.app-header__name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.app-header__team {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.app-header__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e8eaf6;
+  color: #283593;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.app-header__signout {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.calendar-body {
+  flex-grow: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+}
+
+.calendar-card {
+  flex-grow: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 20px 24px 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  flex-wrap: wrap;
+}
+
+.toolbar__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  min-width: 160px;
+  text-align: center;
+}
+
+.toolbar__spacer {
+  flex-grow: 1;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: #ece9f5;
+  }
+}
+
+.today-btn {
+  height: 36px;
+  padding: 0 16px;
+  margin-left: 4px;
+  border: 1px solid #7a7985;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #3949ab;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: #f3f2fa;
+  }
+}
+
+.pill-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 20px;
+  background: #e8eaf6;
+  color: #283593;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: #d9dcf3;
+  }
+}
+
+.text-btn {
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: #3949ab;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: #ece9f5;
+  }
+}
+
+.side-column {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.save-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.save-btn {
+  height: 48px;
+  border: 0;
+  border-radius: 24px;
+  background: #3949ab;
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: #303f9f;
+  }
+}
+
+.save-note {
+  font-size: 12px;
+  color: #5d5e6b;
+  text-align: center;
+}
+
+@media (max-width: 980px) {
+  .calendar-body {
+    flex-direction: column;
+  }
+
+  .side-column {
+    width: auto;
+  }
+}

@@ -1,0 +1,17 @@
+<div class="summary-panel">
+  <h2>Riepilogo di {{ monthLabel() }}</h2>
+
+  @for (row of rows(); track row.type.id) {
+    <div class="summary-row">
+      <span class="dot" [style.background]="row.type.dot"></span>
+      <span class="summary-row__label">{{ row.type.label }}</span>
+      <span class="summary-row__count">{{ row.count }}</span>
+    </div>
+  }
+
+  <div class="summary-row summary-row--unset">
+    <span class="dot dot--unset" aria-hidden="true"></span>
+    <span class="summary-row__label">Giorni lavorativi non impostati</span>
+    <span class="summary-row__count summary-row__count--warn">{{ unsetCount() }}</span>
+  </div>
+</div>

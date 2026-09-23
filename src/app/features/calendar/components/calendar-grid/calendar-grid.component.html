@@ -1,0 +1,54 @@
+<div class="weekday-row">
+  @for (h of weekdayHeaders(); track h.index) {
+    <button
+      type="button"
+      class="weekday-btn"
+      [class.weekday-btn--active]="h.allSelected"
+      [class.weekday-btn--weekend]="h.index >= 5"
+      [attr.aria-label]="'Select every ' + h.fullLabel + ' of the month'"
+      (click)="weekdayToggle.emit(h)"
+    >
+      {{ h.label }}
+    </button>
+  }
+</div>
+
+<div class="week-grid">
+  @for (week of weeks(); track $index) {
+    <div class="week-row">
+      @for (day of week; track day.key) {
+        <button
+          type="button"
+          class="day-cell"
+          [class.day-cell--out]="!day.inMonth"
+          [class.day-cell--selected]="day.selected"
+          [class.day-cell--weekend]="day.isWeekend && day.inMonth"
+          [disabled]="!day.inMonth"
+          [attr.aria-pressed]="day.selected"
+          [attr.aria-label]="day.ariaLabel"
+          (click)="onDayClick(day)"
+        >
+          <span class="day-cell__top">
+            <span class="day-cell__num" [class.day-cell__num--today]="day.isToday">{{
+              day.dayNum
+            }}</span>
+            @if (day.selected) {
+              <span class="day-cell__check" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff"
+                  stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12l5 5 9-10"></path>
+                </svg>
+              </span>
+            }
+          </span>
+          @if (day.type) {
+            <span class="day-cell__chip" [style.background]="day.type.bg" [style.color]="day.type.fg">
+              <span class="day-cell__dot" [style.background]="day.type.dot"></span>
+              {{ day.type.label }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,95 @@
+<div class="calendar-page">
+  <header class="app-header">
+    <span class="app-header__icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+        <path d="M16 3v4M8 3v4M3 10h18"></path>
+        <path d="M8 15l2.5 2.5L16 13"></path>
+      </svg>
+    </span>
+    <span class="app-header__title">Piano Presenze</span>
+
+    <div class="app-header__user">
+      @if (user(); as u) {
+        <div class="app-header__identity">
+          <span class="app-header__name">{{ u.displayName }}</span>
+          @if (u.team) {
+            <span class="app-header__team">{{ u.team }}</span>
+          }
+        </div>
+        <div class="app-header__avatar">{{ u.initials }}</div>
+      }
+      <button type="button" class="app-header__signout" aria-label="Sign out" (click)="signOut()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <path d="M16 17l5-5-5-5M21 12H9"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="calendar-body">
+    <section class="calendar-card">
+      <div class="toolbar">
+        <button type="button" class="icon-btn" aria-label="Previous month" (click)="goToPreviousMonth()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#45464f" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+        <h1 class="toolbar__title">{{ monthLabel() }}</h1>
+        <button type="button" class="icon-btn" aria-label="Next month" (click)="goToNextMonth()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#45464f" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+        <button type="button" class="today-btn" (click)="goToToday()">Today</button>
+
+        <div class="toolbar__spacer"></div>
+
+        <button type="button" class="pill-btn" (click)="selectEmptyWorkdays()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#283593" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+            <path d="M8 12l3 3 5-6"></path>
+          </svg>
+          Select empty workdays
+        </button>
+        <button type="button" class="text-btn" (click)="clearSelection()">Clear selection</button>
+      </div>
+
+      <app-calendar-grid
+        [weekdayHeaders]="weekdayHeaders()"
+        [weeks]="weeks()"
+        (dayToggle)="onDayToggle($event)"
+        (weekdayToggle)="onWeekdayToggle($event)"
+      />
+    </section>
+
+    <aside class="side-column">
+      <app-assign-panel
+        [presenceTypes]="presenceTypes"
+        [pendingTypeId]="pendingTypeId()"
+        [selectedCount]="selectedCount()"
+        [selectedSummary]="selectedSummary()"
+        (pendingTypeChange)="onPendingTypeChange($event)"
+        (apply)="applyToSelection()"
+        (clearValue)="clearSelectionValue()"
+      />
+
+      <app-summary-panel
+        [monthLabel]="monthLabel().split(' ')[0]"
+        [rows]="summaryRows()"
+        [unsetCount]="unsetWorkdaysCount()"
+      />
+
+      <div class="save-block">
+        <button type="button" class="save-btn" (click)="saveMonth()">Salva il mese</button>
+        <span class="save-note">{{ dirty() ? 'Ci sono cambiamenti non salvati' : 'Non ci sono cambiamenti' }}</span>
+      </div>
+    </aside>
+  </div>
+</div>
