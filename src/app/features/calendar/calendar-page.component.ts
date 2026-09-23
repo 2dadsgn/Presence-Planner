@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { PresenceService } from '../../core/services/presence.service';
+import { ProfileService } from '../../core/services/profile.service';
 import {
   buildMonthGrid,
   isSameDay,
@@ -26,9 +28,14 @@ import { SummaryPanelComponent, SummaryRow } from './components/summary-panel/su
 export class CalendarPageComponent {
   private readonly auth = inject(AuthService);
   private readonly presence = inject(PresenceService);
+  private readonly profile = inject(ProfileService);
+  private readonly router = inject(Router);
 
   readonly user = this.auth.user;
   readonly presenceTypes: PresenceType[] = PRESENCE_TYPES;
+
+  /** Whether the signed-in user manages a team — controls the "Manage team" button. */
+  readonly isManager = computed(() => this.profile.profile()?.managedTeam != null);
 
   private readonly today = new Date();
   private readonly viewYear = signal(this.today.getFullYear());
@@ -40,6 +47,7 @@ export class CalendarPageComponent {
 
   constructor() {
     this.presence.loadMonth(this.viewYear(), this.viewMonth());
+    this.profile.ensureLoaded().subscribe();
   }
 
   readonly monthLabel = computed(
@@ -224,5 +232,9 @@ export class CalendarPageComponent {
 
   signOut(): void {
     this.auth.logout();
+  }
+
+  goToTeamSettings(): void {
+    this.router.navigateByUrl('/team-settings');
   }
 }

@@ -41,6 +41,15 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  min-width: 0;
+}
+
+.app-header__name,
+.app-header__team {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header__name {
@@ -64,6 +73,27 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
+}
+
+.app-header__team-settings {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
 }
 
 .app-header__signout {
@@ -108,7 +138,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 48px;
+  row-gap: 8px;
+  min-height: 48px;
   flex-wrap: wrap;
 }
 
@@ -238,5 +269,43 @@
 
   .side-column {
     width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .calendar-body {
+    padding: 12px;
+  }
+
+  .calendar-card {
+    padding: 16px;
+  }
+
+  .toolbar__title {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  // The spacer only matters in the single-line desktop layout (it pushes the
+  // trailing buttons to the right); once the toolbar wraps to multiple rows
+  // on mobile it just adds an extra empty row, so it's dropped here.
+  .toolbar__spacer {
+    display: none;
+  }
+
+  // These two have the longest labels, so they're the ones that don't fit
+  // alongside the nav controls at phone widths. Forcing them onto their own
+  // full-width row (instead of letting the flexbox wrap them wherever there's
+  // leftover space) is what actually fixes the overlap, not just the height.
+  .pill-btn,
+  .text-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .pill-btn {
+    font-size: 13px;
+    text-align: center;
+    white-space: normal;
   }
 }

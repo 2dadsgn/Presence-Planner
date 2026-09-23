@@ -13,4 +13,7 @@ export const environment = {
   apiScopes: ['User.Read'],
 
   useMockAuth: false,
+
+  apiBaseUrl: 'https://YOUR_API_DOMAIN',
+  useMockApi: false,
 };

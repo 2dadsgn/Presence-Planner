@@ -1,0 +1,202 @@
+<div class="page">
+  <header class="app-header">
+    <button type="button" class="app-header__back" aria-label="Torna al calendario" (click)="backToCalendar()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+    <span class="app-header__title">Impostazioni team @if (team()) { — {{ team()!.name }} }</span>
+    @if (user(); as u) {
+      <div class="app-header__avatar" [attr.aria-label]="u.displayName">{{ u.initials }}</div>
+    }
+  </header>
+
+  <div class="content">
+    @if (loading()) {
+      <p class="loading">Caricamento…</p>
+    } @else if (!team()) {
+      <div class="card">
+        <p>Impossibile caricare il team. Verifica che presence-planner-api sia in esecuzione e raggiungibile.</p>
+      </div>
+    } @else {
+      <section class="card">
+        <h2>Giorni minimi in ufficio</h2>
+        <p class="card__hint">
+          Quanti giorni a settimana ogni membro di {{ team()!.name }} è previsto in ufficio, come
+          regola predefinita. Puoi impostare un'eccezione per singola persona qui sotto.
+        </p>
+        <div class="policy-row">
+          <label for="policy-input">Giorni a settimana</label>
+          <input
+            id="policy-input"
+            type="number"
+            min="0"
+            max="7"
+            [ngModel]="policyDraft()"
+            (ngModelChange)="policyDraft.set($event)"
+          />
+          <button type="button" class="btn btn--primary" [disabled]="savingPolicy()" (click)="savePolicy()">
+            {{ savingPolicy() ? 'Salvataggio…' : 'Salva' }}
+          </button>
+          @if (policySaved() && !savingPolicy()) {
+            <span class="saved-note">Salvato</span>
+          }
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__header-row">
+          <div>
+            <h2>Eccezioni</h2>
+            <p class="card__hint">
+              Un minimo ridotto, o l'esenzione completa, per una persona in un periodo — per
+              congedo parentale, orario ridotto, o altro accordo individuale.
+            </p>
+          </div>
+          <button type="button" class="btn btn--primary" (click)="openForm()">Aggiungi eccezione</button>
+        </div>
+
+        @if (exceptions().length === 0) {
+          <p class="empty">Nessuna eccezione al momento.</p>
+        } @else {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Si applica</th>
+                <th>Periodo</th>
+                <th>Motivo</th>
+                <th>Impostato da</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of exceptions(); track e.id) {
+                <tr>
+                  <td>{{ e.userDisplayName }}</td>
+                  <td>
+                    @if (e.minOfficeDaysPerWeek === null) {
+                      <span class="badge badge--exempt">Completamente esente</span>
+                    } @else {
+                      <span class="badge">{{ e.minOfficeDaysPerWeek }} giorni/settimana</span>
+                    }
+                  </td>
+                  <td>{{ e.startDate }} @if (e.endDate) { → {{ e.endDate }} } @else { → senza scadenza }</td>
+                  <td class="reason-cell">{{ e.reason }}</td>
+                  <td>{{ e.createdByDisplayName }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="icon-btn"
+                      aria-label="Rimuovi eccezione"
+                      (click)="deleteException(e)"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"></path>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+    }
+  </div>
+
+  @if (showForm()) {
+    <div class="overlay" (click)="closeForm()">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <h2>Aggiungi eccezione</h2>
+
+        <div class="field">
+          <label for="member-select">Persona</label>
+          <select
+            id="member-select"
+            [ngModel]="formUserId()"
+            (ngModelChange)="formUserId.set($event)"
+          >
+            @for (m of members(); track m.id) {
+              <option [value]="m.id">{{ m.displayName }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field field--checkbox">
+          <label>
+            <input
+              type="checkbox"
+              [ngModel]="formExempt()"
+              (ngModelChange)="formExempt.set($event)"
+            />
+            Completamente esente (nessun minimo per questo periodo)
+          </label>
+        </div>
+
+        @if (!formExempt()) {
+          <div class="field">
+            <label for="min-days-input">Giorni minimi in ufficio/settimana per questa persona</label>
+            <input
+              id="min-days-input"
+              type="number"
+              min="0"
+              max="7"
+              [ngModel]="formMinDays()"
+              (ngModelChange)="formMinDays.set($event)"
+            />
+          </div>
+        }
+
+        <div class="field-row">
+          <div class="field">
+            <label for="start-date-input">Data inizio</label>
+            <input
+              id="start-date-input"
+              type="date"
+              [ngModel]="formStartDate()"
+              (ngModelChange)="formStartDate.set($event)"
+            />
+          </div>
+          <div class="field">
+            <label for="end-date-input">Data fine (opzionale)</label>
+            <input
+              id="end-date-input"
+              type="date"
+              [ngModel]="formEndDate()"
+              (ngModelChange)="formEndDate.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="reason-input">Motivo</label>
+          <textarea
+            id="reason-input"
+            rows="2"
+            [ngModel]="formReason()"
+            (ngModelChange)="formReason.set($event)"
+          ></textarea>
+        </div>
+
+        @if (formError()) {
+          <p class="form-error">{{ formError() }}</p>
+        }
+
+        <div class="dialog__actions">
+          <button type="button" class="btn" (click)="closeForm()">Annulla</button>
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="submitting()"
+            (click)="submitException()"
+          >
+            {{ submitting() ? 'Salvataggio…' : 'Salva eccezione' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

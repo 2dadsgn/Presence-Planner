@@ -40,9 +40,28 @@ export function msalGuardConfigFactory(): MsalGuardConfiguration {
   };
 }
 
-/** Attaches an access token to calls made to your own API. Add your API's URL here. */
+/**
+ * Attaches an access token to calls made to presence-planner-api, so its
+ * "azuread" profile can validate who's calling. Requesting environment.apiScopes
+ * here means those scopes must include one exposed by the API's own app
+ * registration (not just Microsoft Graph's User.Read) — see that project's
+ * README, "Connecting real Microsoft/Entra ID sign-in".
+ */
+/**
+ * IMPORTANT: this map is only populated when useMockAuth is false. MsalInterceptor
+ * is registered globally (app.config.ts) regardless of the auth mode, and it
+ * silently tries to acquire a token for any request whose URL matches an entry
+ * here. In mock-auth mode we never call loginPopup/loginRedirect, so the MSAL
+ * instance has no active account — acquireTokenSilent then hangs waiting on a
+ * token that can never be issued, which makes every /api/* call (e.g. /api/me)
+ * stall forever with no next/error/complete notification. Leaving the map empty
+ * in mock mode means MsalInterceptor has nothing to match and simply passes the
+ * request through untouched to devUserInterceptor / the backend.
+ */
 export function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
-  // Example: protectedResourceMap.set('https://api.yourcompany.com/', environment.apiScopes);
+  if (!environment.useMockAuth) {
+    protectedResourceMap.set(`${environment.apiBaseUrl}/*`, environment.apiScopes);
+  }
   return { interactionType: InteractionType.Popup, protectedResourceMap };
 }
