@@ -20,12 +20,12 @@ export const environment = {
   useMockAuth: true,
 
   // Base URL of the Presence Planner API (see the separate
-  // presence-planner-api project). Only used when useMockApi is false.
+  // presence-planner-api project). Only used when useBroswerCache is false.
   apiBaseUrl: 'http://localhost:8080',
 
   // When true, presence data is kept in the browser (localStorage) instead
   // of calling the backend — lets the app run standalone with no API
   // running. Set to false once presence-planner-api is up, so presence is
   // shared across users and the office-days policy is enforced for real.
-  useMockApi: true,
+  useBroswerCache: true,
 };
