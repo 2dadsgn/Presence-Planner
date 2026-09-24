@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
-import { catchError, of, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { PresenceAssignments, DateKey } from '../models/presence.model';
+import {HttpClient} from '@angular/common/http';
+import {inject, Injectable, signal} from '@angular/core';
+import {catchError, of, tap} from 'rxjs';
+import {environment} from '../../../environments/environment';
+import {DateKey, PresenceAssignments} from '../models/presence.model';
+import {STRING_TO_PRESENCE_MAP, UserPresences} from '../../models/user-presences';
 
 const STORAGE_PREFIX = 'presence-planner:assignments';
 
@@ -34,16 +35,13 @@ interface MonthResponse {
  * the real case, kept only so the calendar page's button/text don't need
  * to differ between the two modes.
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class PresenceService {
-  private readonly http = inject(HttpClient);
-
   /** date key ('YYYY-MM-DD') -> presence type id */
   readonly assignments = signal<PresenceAssignments>({});
-
   /** True while a save (mock: none, real: an in-flight request) hasn't settled. */
   readonly dirty = signal(false);
-
+  private readonly http = inject(HttpClient);
   private currentKey: string | null = null;
   private currentYear = 0;
   private currentMonth = 0;
@@ -62,7 +60,7 @@ export class PresenceService {
 
     this.http
       .get<MonthResponse>(`${environment.apiBaseUrl}/api/presence`, {
-        params: { year, month: month + 1 }, // backend months are 1-based
+        params: {year, month: month + 1}, // backend months are 1-based
       })
       .pipe(
         tap((res) => this.persistCache(res.assignments)),
@@ -73,7 +71,7 @@ export class PresenceService {
           // just stays empty.
           const raw = localStorage.getItem(this.currentKey!);
           const cached = raw ? (JSON.parse(raw) as PresenceAssignments) : {};
-          return of<MonthResponse>({ month: '', assignments: cached });
+          return of<MonthResponse>({month: '', assignments: cached});
         }),
       )
       .subscribe((res) => this.assignments.set(res.assignments));
@@ -81,23 +79,57 @@ export class PresenceService {
 
   setMany(dateKeys: DateKey[], typeId: string): void {
     if (dateKeys.length === 0) return;
+
+    const next = {...this.assignments()};
+    dateKeys.forEach((d) => (next[d] = typeId));
+    this.assignments.set(next);
+
     //save to browser cache
     if (environment.useBroswerCache) {
-      const next = { ...this.assignments() };
-      dateKeys.forEach((d) => (next[d] = typeId));
-      this.assignments.set(next);
       this.persistCache(next);
-      this.dirty.set(false);
-      return;
+    }
+    this.dirty.set(true);
+    return;
+  }
+
+  clearMany(dateKeys: DateKey[]): void {
+    if (dateKeys.length === 0) return;
+
+    const next = {...this.assignments()};
+    dateKeys.forEach((d) => delete next[d]);
+    this.assignments.set(next);
+
+    if (environment.useBroswerCache) {
+      this.persistCache(next);
     }
 
     this.dirty.set(true);
-    //send to backend
+    return;
+  }
+
+  /**
+   * With the real API every change is already saved (and cached) as it
+   * happens, so this has nothing left to do there — kept so the calendar
+   * page's "Save month" button and dirty-state text keep working
+   * unchanged across both modes.
+   */
+  save(): void {
+    if (environment.useBroswerCache) {
+      // invia i dati salvati al backend
+      //TODO need to check in with backend and high light days that are in conflict
+      this.sendForValidation();
+      this.dirty.set(false);
+      this.persistCache(this.assignments());
+    }
+    this.dirty.set(false);
+  }
+
+
+  private sendForValidation(): void {
     this.http
-      .post<MonthResponse>(`${environment.apiBaseUrl}/api/presence/assign`, {
-        dates: dateKeys,
-        type: typeId,
-      })
+      .post<MonthResponse>(`${environment.apiBaseUrl}/api/presence/assign`,
+        this.translateToDTO()
+      )
       .pipe(
         tap((res) => {
           this.assignments.set(res.assignments);
@@ -115,44 +147,20 @@ export class PresenceService {
       .subscribe(() => this.dirty.set(false));
   }
 
-  clearMany(dateKeys: DateKey[]): void {
-    if (dateKeys.length === 0) return;
+  private translateToDTO(): UserPresences {
+    //transform record of assignments to array of day type elements
+    const temp = Object.entries(this.assignments()).map(
+      ([date, status]:[string,string]) => {
+        return {
+          day: new Date(date),
+          status: STRING_TO_PRESENCE_MAP[status],
+        }
+      });
 
-    if (environment.useBroswerCache) {
-      const next = { ...this.assignments() };
-      dateKeys.forEach((d) => delete next[d]);
-      this.assignments.set(next);
-      this.persistCache(next);
-      this.dirty.set(false);
-      return;
+    return {
+      presences:temp,
     }
 
-    this.dirty.set(true);
-    this.http
-      .post<MonthResponse>(`${environment.apiBaseUrl}/api/presence/clear`, { dates: dateKeys })
-      .pipe(
-        tap((res) => {
-          this.assignments.set(res.assignments);
-          this.persistCache(res.assignments);
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe(() => this.dirty.set(false));
-  }
-
-  /**
-   * With the real API every change is already saved (and cached) as it
-   * happens, so this has nothing left to do there — kept so the calendar
-   * page's "Save month" button and dirty-state text keep working
-   * unchanged across both modes.
-   */
-  save(): void {
-    if (environment.useBroswerCache) {
-      //TODO invia i dati salvati al backend
-      //TODO need to check in with backend and high light days that are in conflict
-      this.persistCache(this.assignments());
-    }
-    this.dirty.set(false);
   }
 
   /** Mirrors a known-good (server-confirmed, or mock) snapshot into localStorage. */
@@ -160,6 +168,7 @@ export class PresenceService {
     if (!this.currentKey) return;
     localStorage.setItem(this.currentKey, JSON.stringify(assignments));
   }
+
 
   private storageKey(year: number, month: number): string {
     return `${STORAGE_PREFIX}:${year}-${String(month + 1).padStart(2, '0')}`;

@@ -15,5 +15,5 @@ export const environment = {
   useMockAuth: false,
 
   apiBaseUrl: 'https://YOUR_API_DOMAIN',
-  useMockApi: false,
+  useBroswerCache: true,
 };
