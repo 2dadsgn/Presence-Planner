@@ -12,7 +12,7 @@ import { MeResponse } from '../models/team.model';
  * rather than each making their own assumption.
  *
  * Requires presence-planner-api to be running: if it isn't reachable (e.g.
- * environment.useMockApi is true and no backend is up), profile() stays
+ * environment.useBroswerCache is true and no backend is up), profile() stays
  * null and the app simply behaves as if the user manages no team — no
  * crash, the manager-only UI just doesn't appear.
  */
