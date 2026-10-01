@@ -1,17 +1,19 @@
+
 export interface UserPresences {
-  presences: day[]
+  presences: Day[]
 }
 
 export enum Presence {
-  office = 0,
-  remote=1,
-  vacation=2,
-  client=3,
+  office = "office",
+  remote= "remote",
+  vacation=  "vacation",
+  client= "client",
+  notSet= "notset",
 }
 
-export interface day{
-  day: Date;
-  status: Presence;
+export interface Day{
+  date: string;
+  type: Presence;
 }
 
 
@@ -20,5 +22,6 @@ export const STRING_TO_PRESENCE_MAP: Record<string, Presence> = {
   remote: Presence.remote,
   vacation: Presence.vacation,
   client: Presence.client,
+  notset: Presence.notSet,
 
 } as const;

@@ -17,6 +17,7 @@ import { DayCell, WeekdayHeader } from './models/day-cell.model';
 import { CalendarGridComponent } from './components/calendar-grid/calendar-grid.component';
 import { AssignPanelComponent } from './components/assign-panel/assign-panel.component';
 import { SummaryPanelComponent, SummaryRow } from './components/summary-panel/summary-panel.component';
+import {UserPresences, Presence} from '../../models/user-presences';
 
 @Component({
   selector: 'app-calendar-page',
@@ -46,6 +47,7 @@ export class CalendarPageComponent {
   readonly pendingTypeId = signal<string>(PRESENCE_TYPES[0].id);
 
   constructor() {
+    //TODO must initialize every day to NOTSET state
     this.presence.loadMonth(this.viewYear(), this.viewMonth());
     this.profile.ensureLoaded().subscribe();
   }
@@ -140,7 +142,7 @@ export class CalendarPageComponent {
 
   readonly unsetWorkdaysCount = computed(() => {
     const assignments = this.presence.assignments();
-    return this.dayCells().filter((c) => c.inMonth && !c.isWeekend && !assignments[c.key]).length;
+    return this.dayCells().filter((c) => c.inMonth && !c.isWeekend && assignments[c.key]== Presence.notSet).length;
   });
 
   readonly dirty = this.presence.dirty;
@@ -192,6 +194,7 @@ export class CalendarPageComponent {
 
   clearSelectionValue(): void {
     this.presence.clearMany([...this.selectedKeys()]);
+    this.presence.assignments();
     this.selectedKeys.set(new Set());
   }
 
