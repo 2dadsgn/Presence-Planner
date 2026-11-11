@@ -11,11 +11,10 @@ export interface PresenceType {
 }
 
 export const PRESENCE_TYPES: PresenceType[] = [
-  { id: 'ufficio', label: 'Ufficio', fg: '#0b4a9e', bg: '#dce8ff', dot: '#1a66d1' },
-  { id: 'Smart-Working', label: 'Smart-Working', fg: '#00574b', bg: '#cdefe8', dot: '#00897b' },
-  { id: 'Ferie/PAR', label: 'Ferie/PAR', fg: '#6b4100', bg: '#ffe3b3', dot: '#e69500' },
-  { id: 'Cliente', label: 'Cliente', fg: '#8c1d18', bg: '#ffdad6', dot: '#d93025' },
-  { id: 'Festivo', label: 'Festivo', fg: '#45464f', bg: '#e4e2ec', dot: '#777680' },
+  { id: 'office', label: 'Ufficio', fg: '#0b4a9e', bg: '#dce8ff', dot: '#1a66d1' },
+  { id: 'remote', label: 'Smart-Working', fg: '#00574b', bg: '#cdefe8', dot: '#00897b' },
+  { id: 'vacation', label: 'Ferie/PAR', fg: '#6b4100', bg: '#ffe3b3', dot: '#e69500' },
+  { id: 'client', label: 'Cliente', fg: '#8c1d18', bg: '#ffdad6', dot: '#d93025' },
 ];
 
 /** date key format: 'YYYY-MM-DD' */
